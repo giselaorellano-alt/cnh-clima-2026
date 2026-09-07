@@ -1,0 +1,542 @@
+<title>Clima CNH 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#faf9f6;
+    --surface:#ffffff;
+    --surface-2:#f2f0ea;
+    --ink:#16233d;
+    --ink-soft:#5b6675;
+    --ink-faint:#8a93a0;
+    --line:#e4e1d8;
+    --accent:#a5761f;
+    --accent-ink:#6f4f16;
+    --accent-soft:#f3e7cd;
+    --pos:#3f7d58;
+    --pos-soft:#e3efe7;
+    --neu:#c08a2e;
+    --neu-soft:#f4ead4;
+    --neg:#b54b3f;
+    --neg-soft:#f6e5e2;
+    --shadow: 0 1px 2px rgba(22,35,61,.06), 0 8px 24px -12px rgba(22,35,61,.12);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1620;
+      --surface:#161f2b;
+      --surface-2:#1c2733;
+      --ink:#eceae2;
+      --ink-soft:#a9b3c1;
+      --ink-faint:#78849523;
+      --ink-faint:#7f8b99;
+      --line:#2a3542;
+      --accent:#dcae4d;
+      --accent-ink:#f0c876;
+      --accent-soft:#33291a;
+      --pos:#6cb489;
+      --pos-soft:#182922;
+      --neu:#dcae4d;
+      --neu-soft:#2c2416;
+      --neg:#d97f70;
+      --neg-soft:#301f1c;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1620;
+    --surface:#161f2b;
+    --surface-2:#1c2733;
+    --ink:#eceae2;
+    --ink-soft:#a9b3c1;
+    --ink-faint:#7f8b99;
+    --line:#2a3542;
+    --accent:#dcae4d;
+    --accent-ink:#f0c876;
+    --accent-soft:#33291a;
+    --pos:#6cb489;
+    --pos-soft:#182922;
+    --neu:#dcae4d;
+    --neu-soft:#2c2416;
+    --neg:#d97f70;
+    --neg-soft:#301f1c;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 24px 80px; }
+
+  header.top{
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+  }
+  .top-inner{
+    max-width:1180px; margin:0 auto; padding:28px 24px 24px;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand-mark{
+    width:44px; height:44px; border-radius:10px;
+    background:var(--ink); color:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-weight:700; font-size:15px; letter-spacing:.02em;
+    flex-shrink:0;
+  }
+  .brand h1{ margin:0; font-size:21px; font-weight:700; letter-spacing:-.01em; text-wrap:balance; }
+  .brand p{ margin:2px 0 0; font-size:13px; color:var(--ink-soft); }
+  .top-meta{ text-align:right; font-size:12.5px; color:var(--ink-faint); }
+  .top-meta .status{
+    display:inline-flex; align-items:center; gap:6px;
+    color:var(--pos); font-weight:600; margin-bottom:4px;
+  }
+  .top-meta .status::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--pos); }
+
+  section{ margin-top:44px; }
+  .section-head{ margin-bottom:16px; }
+  .section-head .eyebrow{
+    font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent-ink); font-weight:600; margin:0 0 6px;
+  }
+  .section-head h2{ margin:0; font-size:19px; font-weight:700; letter-spacing:-.01em; }
+  .section-head p.sub{ margin:6px 0 0; font-size:13.5px; color:var(--ink-soft); max-width:70ch; }
+
+  /* KPI row */
+  .kpi-grid{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .kpi{ background:var(--surface); padding:20px 18px; min-width:0; }
+  .kpi .label{ font-size:12px; color:var(--ink-soft); margin:0 0 10px; }
+  .kpi .value{ font-family:'IBM Plex Mono'; font-size:30px; font-weight:600; letter-spacing:-.01em; line-height:1; }
+  .kpi .value small{ font-size:15px; font-weight:500; color:var(--ink-soft); }
+  .kpi .foot{ font-size:11.5px; color:var(--ink-faint); margin-top:8px; }
+  @media (max-width:900px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  /* callout */
+  .callout{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--neu-soft); border:1px solid color-mix(in srgb, var(--neu) 35%, var(--line));
+    border-radius:10px; padding:16px 18px; margin-top:20px;
+  }
+  .callout .dot{ width:8px;height:8px;border-radius:50%; background:var(--neu); margin-top:7px; flex-shrink:0; }
+  .callout strong{ color:var(--ink); }
+  .callout p{ margin:4px 0 0; font-size:13.5px; color:var(--ink-soft); }
+
+  /* coverage cards */
+  .cov-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:900px){ .cov-grid{ grid-template-columns:1fr; } }
+  .cov-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px;
+  }
+  .cov-card h3{ margin:0 0 4px; font-size:14.5px; font-weight:600; }
+  .cov-card .n{ font-family:'IBM Plex Mono'; font-size:24px; font-weight:600; margin:8px 0 2px; }
+  .cov-card .n small{ font-size:13px; font-weight:500; color:var(--ink-soft); }
+  .cov-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin:10px 0; }
+  .cov-bar > i{ display:block; height:100%; background:var(--accent); border-radius:4px; }
+  .cov-card .note{ font-size:12px; color:var(--ink-faint); }
+
+  /* toggle */
+  .toggle{ display:inline-flex; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px; }
+  .toggle button{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:600; color:var(--ink-soft);
+    background:transparent; border:none; padding:7px 14px; border-radius:6px; cursor:pointer;
+  }
+  .toggle button.active{ background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(22,35,61,.15); }
+  .toggle button:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  /* dimension bars */
+  .dim-panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px 22px 10px;
+  }
+  .legend{ display:flex; gap:18px; font-size:12px; color:var(--ink-soft); margin-bottom:18px; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend i{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+  .dim-row{ display:grid; grid-template-columns:200px 1fr 56px; gap:16px; align-items:center; padding:11px 0; border-top:1px solid var(--line); }
+  .dim-row:first-of-type{ border-top:none; }
+  .dim-row .name{ font-size:13.5px; font-weight:600; }
+  .dim-row .name small{ display:block; font-weight:400; color:var(--ink-faint); font-size:11.5px; margin-top:1px; }
+  .stack{ display:flex; height:16px; border-radius:4px; overflow:hidden; background:var(--surface-2); }
+  .stack .neg{ background:var(--neg); }
+  .stack .neu{ background:var(--neu); }
+  .stack .pos{ background:var(--pos); }
+  .dim-row .score{ font-family:'IBM Plex Mono'; font-weight:600; text-align:right; font-size:15px; }
+  @media (max-width:640px){ .dim-row{ grid-template-columns:120px 1fr 44px; gap:10px; } }
+
+  /* comparison table */
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-weight:600; padding:0 12px 10px; }
+  th.num, td.num{ text-align:right; font-family:'IBM Plex Mono'; }
+  td{ padding:12px; border-top:1px solid var(--line); vertical-align:middle; }
+  tr td:first-child, tr th:first-child{ padding-left:0; }
+  tr td:last-child, tr th:last-child{ padding-right:0; }
+  .table-wrap{ overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:6px 20px; }
+  .pill{ display:inline-block; padding:2px 9px; border-radius:100px; font-size:11.5px; font-weight:600; font-family:'IBM Plex Mono'; }
+  .pill.pos{ background:var(--pos-soft); color:var(--pos); }
+  .pill.neu{ background:var(--neu-soft); color:var(--neu); }
+  .pill.neg{ background:var(--neg-soft); color:var(--neg); }
+  .delta{ font-family:'IBM Plex Mono'; font-size:12px; font-weight:600; }
+  .delta.up{ color:var(--pos); }
+  .delta.down{ color:var(--neg); }
+  .mini-bar{ width:70px; height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; }
+  .mini-bar > i{ display:block; height:100%; background:var(--accent); }
+
+  /* questions table */
+  .q-filter{ display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+  .q-search{
+    font-family:'IBM Plex Sans'; font-size:13px; padding:8px 12px; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); min-width:220px;
+  }
+  .q-search:focus-visible{ outline:2px solid var(--accent); }
+  .qdim-tag{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); }
+
+  footer.notes{
+    margin-top:56px; padding-top:24px; border-top:1px solid var(--line);
+  }
+  footer.notes h3{ font-size:13px; margin:0 0 10px; }
+  footer.notes ol{ margin:0; padding-left:20px; font-size:12.5px; color:var(--ink-soft); }
+  footer.notes li{ margin-bottom:8px; }
+  footer.notes .sign{ margin-top:22px; font-size:11.5px; color:var(--ink-faint); }
+
+  [hidden]{ display:none !important; }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="brand-mark">CNH</div>
+      <div>
+        <h1>Encuesta de Clima CNH · 2026</h1>
+        <p>Reporte consolidado &middot; CNH Industrial, Comercial, Capital y M&eacute;xico</p>
+      </div>
+    </div>
+    <div class="top-meta">
+      <div class="status">Relevamiento cerrado</div>
+      <div>Consolidado a partir de 7 env&iacute;os &middot; septiembre 2026</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section style="margin-top:36px;">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <p class="label">Favorabilidad general</p>
+        <p class="value">73<small>/100</small></p>
+        <p class="foot">Empleados 73 &middot; Sindicalizados 73 &middot; unificado por pregunta</p>
+      </div>
+      <div class="kpi">
+        <p class="label">eNPS</p>
+        <p class="value">51</p>
+        <p class="foot">Promotores 61% &middot; Detractores 10%</p>
+      </div>
+      <div class="kpi">
+        <p class="label">Participaci&oacute;n</p>
+        <p class="value">79%</p>
+        <p class="foot">450 de 568 invitados</p>
+      </div>
+      <div class="kpi">
+        <p class="label">Respuestas analizadas</p>
+        <p class="value">450</p>
+        <p class="foot">286 empleados + 158 sindicalizados + 6 altas</p>
+      </div>
+      <div class="kpi">
+        <p class="label">Dimensiones de clima</p>
+        <p class="value">5<small>+1</small></p>
+        <p class="foot">29 preguntas &middot; incluye pulso de bienestar</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="dot"></span>
+      <div>
+        <strong>CNH Componentes no fue relevada en este ciclo.</strong>
+        <p>Es la &uacute;nica de las 5 empresas del grupo sin encuesta asociada: 183 personas (~25% de la dotaci&oacute;n total de 737) quedaron fuera de las 7 encuestas revisadas. Recomendamos incorporarla al pr&oacute;ximo lanzamiento.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Cobertura del relevamiento</p>
+      <h2>Los datos vienen de 7 encuestas separadas</h2>
+      <p class="sub">CNH lanz&oacute; el clima 2026 en dos herramientas distintas seg&uacute;n categor&iacute;a de colaborador, m&aacute;s cinco altas individuales tard&iacute;as. Los n&uacute;meros de arriba son el resultado de consolidar las 7.</p>
+    </div>
+    <div class="cov-grid">
+      <div class="cov-card">
+        <h3>Empleados</h3>
+        <p class="n">286<small> / 345</small></p>
+        <div class="cov-bar"><i style="width:83%"></i></div>
+        <p class="note">83% de participaci&oacute;n &middot; People Experience &middot; 4 empresas &middot; eNPS 57 &middot; Favorabilidad 73</p>
+      </div>
+      <div class="cov-card">
+        <h3>Sindicalizados</h3>
+        <p class="n">158<small> / 217</small></p>
+        <div class="cov-bar"><i style="width:73%"></i></div>
+        <p class="note">73% de participaci&oacute;n &middot; m&oacute;dulo Encuestas cl&aacute;sico &middot; mismas 4 empresas &middot; 165 respuestas usadas para el detalle por pregunta</p>
+      </div>
+      <div class="cov-card">
+        <h3>Altas complementarias</h3>
+        <p class="n">6<small> / 6</small></p>
+        <div class="cov-bar"><i style="width:100%"></i></div>
+        <p class="note">100% &middot; 5 env&iacute;os de 1&ndash;2 personas &middot; sin favorabilidad/eNPS por protecci&oacute;n de anonimato (m&iacute;nimo de respuestas de Humand)</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Favorabilidad por dimensi&oacute;n</p>
+      <h2>Empleados y sindicalizados leen el clima distinto</h2>
+      <p class="sub">Cada dimensi&oacute;n promedia el % de respuestas favorables (&ldquo;de acuerdo&rdquo; + &ldquo;totalmente de acuerdo&rdquo;) de sus preguntas. El pulso de bienestar usa las categor&iacute;as verdes del sem&aacute;foro emocional como equivalente de &ldquo;favorable&rdquo;.</p>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <div class="toggle" id="dimToggle">
+        <button data-seg="combinado" class="active">Combinado</button>
+        <button data-seg="empleados">Empleados</button>
+        <button data-seg="sindicalizados">Sindicalizados</button>
+      </div>
+    </div>
+
+    <div class="dim-panel">
+      <div class="legend">
+        <span><i style="background:var(--neg)"></i>Negativo</span>
+        <span><i style="background:var(--neu)"></i>Neutral</span>
+        <span><i style="background:var(--pos)"></i>Positivo (favorabilidad)</span>
+      </div>
+      <div id="dimRows"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Comparativo por categor&iacute;a</p>
+      <h2>Empleados vs. sindicalizados, dimensi&oacute;n por dimensi&oacute;n</h2>
+      <p class="sub">Los sindicalizados punt&uacute;an mejor en orgullo, compa&ntilde;erismo y bienestar; los empleados punt&uacute;an mejor en credibilidad y liderazgo &mdash; la mayor brecha del relevamiento.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimensi&oacute;n</th>
+            <th class="num">Empleados</th>
+            <th class="num">Sindicalizados</th>
+            <th class="num">Combinado</th>
+            <th class="num">Brecha</th>
+          </tr>
+        </thead>
+        <tbody id="compareRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Ranking &middot; Empresa</p>
+      <h2>Participaci&oacute;n por empresa (base Empleados)</h2>
+      <p class="sub">Humand solo expone el detalle por empresa para la encuesta de Empleados; la de sindicalizados no est&aacute; segmentada por empresa en la plataforma.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th class="num">Invitados</th>
+            <th class="num">Respondieron</th>
+            <th>Participaci&oacute;n</th>
+          </tr>
+        </thead>
+        <tbody id="companyRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Detalle por pregunta</p>
+      <h2>Las 29 preguntas, ordenadas de menor a mayor favorabilidad</h2>
+      <p class="sub">Favorabilidad combinada: cada pregunta pondera el dato real de Empleados (n=286) y de Sindicalizados (n=165) seg&uacute;n la cantidad de respuestas de cada fuente. Es el mismo c&aacute;lculo pregunta por pregunta que arma el comparativo por dimensi&oacute;n de m&aacute;s arriba, ya unificado a nivel de las 29 preguntas.</p>
+    </div>
+    <div class="q-filter">
+      <input class="q-search" id="qSearch" type="text" placeholder="Buscar por texto o dimensi&oacute;n&hellip;">
+      <span class="qdim-tag" id="qCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%">Dimensi&oacute;n</th>
+            <th>Pregunta</th>
+            <th class="num" style="width:110px">Favorabilidad</th>
+          </tr>
+        </thead>
+        <tbody id="qRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="notes">
+    <h3>Notas metodol&oacute;gicas</h3>
+    <ol>
+      <li><strong>Fuentes:</strong> 1) &ldquo;Encuesta de Clima CNH 2026&rdquo; en People Experience (Empleados, 4 empresas, n=345); 2) &ldquo;Encuesta de clima CNH 2026&rdquo; en el m&oacute;dulo Encuestas cl&aacute;sico (Sindicalizados, mismas 4 empresas, n=217); 3) cinco altas individuales posteriores en People Experience (n=2, 1, 1, 1 y 1).</li>
+      <li><strong>Favorabilidad:</strong> % de respuestas &ldquo;de acuerdo&rdquo; + &ldquo;totalmente de acuerdo&rdquo; sobre el total de respuestas de cada pregunta (m&eacute;todo cl&aacute;sico). Se extrajo el puntaje real pregunta por pregunta de <em>ambas</em> encuestas &mdash; Empleados (286 respuestas, People Experience) y Sindicalizados (165 respuestas, m&oacute;dulo Encuestas cl&aacute;sico) &mdash; y se unific&oacute; cada una de las 29 preguntas ponderando por cantidad de respuestas de cada fuente. Los promedios por dimensi&oacute;n y el total general (73) surgen de esa misma base unificada, no de un promedio de promedios.</li>
+      <li><strong>eNPS:</strong> Promotores (totalmente de acuerdo en &ldquo;recomendar&iacute;a trabajar en CNH&rdquo;) menos Detractores (1 a 3 en esa misma pregunta), sobre la pregunta 23. El valor de Empleados es el nativo de Humand (57); el de Sindicalizados se calcul&oacute; con la misma f&oacute;rmula sobre las 165 respuestas reales (41), ya que la encuesta cl&aacute;sica no calcula eNPS autom&aacute;ticamente. El eNPS combinado (51) pondera ambos por cantidad de respuestas.</li>
+      <li><strong>Consolidaci&oacute;n:</strong> todos los totales &ldquo;combinado&rdquo; (KPIs, dimensiones, preguntas) ponderan Empleados y Sindicalizados por su cantidad real de respuestas (286 y 165). Las 6 altas complementarias se excluyen del c&aacute;lculo de favorabilidad/eNPS por no tener puntaje individual visible en Humand por protecci&oacute;n de anonimato, aunque s&iacute; se cuentan en la participaci&oacute;n.</li>
+      <li><strong>Desglose negativo/neutral/positivo</strong> (gr&aacute;fico de dimensiones): para Sindicalizados sale de las distribuciones reales de respuesta registradas por pregunta. Para Empleados, Humand solo expone en esa vista el puntaje agregado positivo por dimensi&oacute;n (validado contra el valor nativo de la plataforma); el reparto entre negativo y neutral que se grafica es una aproximaci&oacute;n y debe leerse como referencia visual, no como dato exacto &mdash; el puntaje positivo s&iacute; es el real.</li>
+      <li><strong>Comentarios abiertos:</strong> la encuesta de Empleados registr&oacute; 604 comentarios de texto libre. No se reproducen en este reporte por volumen y por tratarse de respuestas potencialmente identificables en &aacute;reas peque&ntilde;as; est&aacute;n disponibles en Humand &rarr; People Experience &rarr; Resultados.</li>
+      <li><strong>CNH Componentes</strong> (183 personas, ~25% de la dotaci&oacute;n) no integr&oacute; ninguna de las 7 encuestas revisadas &mdash; ni la de Empleados ni la de Sindicalizados la incluyeron en su audiencia.</li>
+    </ol>
+    <p class="sign">Preparado por Humand CX a partir de admin.humand.co &middot; septiembre 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const DIMENSIONS = [
+    { name:"Credibilidad y Liderazgo", n:6,  empleados:68, sindicalizados:62, combinado:66 },
+    { name:"Respeto y Desarrollo",     n:8,  empleados:72, sindicalizados:73, combinado:72 },
+    { name:"Imparcialidad y Justicia", n:5,  empleados:65, sindicalizados:65, combinado:65 },
+    { name:"Orgullo",                  n:5,  empleados:86, sindicalizados:88, combinado:87 },
+    { name:"Compañerismo y Colaboración", n:4, empleados:72, sindicalizados:77, combinado:74 },
+    { name:"Semáforo Emocional (bienestar)",   n:1, empleados:82, sindicalizados:93, combinado:86 },
+  ];
+
+  // neg/neu/pos per dimension, per segment (from platform data + computed classic-method breakdown)
+  const DIST = {
+    "Credibilidad y Liderazgo":       { empleados:[13,19,68], sindicalizados:[18,20,62], combinado:[15,19,66] },
+    "Respeto y Desarrollo":           { empleados:[9,19,72],  sindicalizados:[8,19,73],  combinado:[9,19,72] },
+    "Imparcialidad y Justicia":       { empleados:[12,23,65], sindicalizados:[16,19,65], combinado:[14,21,65] },
+    "Orgullo":                        { empleados:[5,9,86],   sindicalizados:[5,7,88],   combinado:[5,8,87] },
+    "Compañerismo y Colaboración": { empleados:[9,19,72], sindicalizados:[7,16,77], combinado:[8,18,74] },
+    "Semáforo Emocional (bienestar)":   { empleados:[6,12,82], sindicalizados:[4,3,93],  combinado:[5,9,86] },
+  };
+
+  const COMPANIES = [
+    { name:"CNH México",   invited:116, responded:105 },
+    { name:"CNH Capital",    invited:31,  responded:27  },
+    { name:"CNH Comercial",  invited:78,  responded:61  },
+    { name:"CNH Industrial", invited:120, responded:93  },
+  ].sort((a,b)=> (b.responded/b.invited) - (a.responded/a.invited));
+
+  // Favorabilidad combinada: promedio ponderado por cantidad de respuestas de cada
+  // fuente (Empleados n=286, Sindicalizados n=165) sobre el dato real pregunta por
+  // pregunta de ambas encuestas.
+  const QUESTIONS = [
+    [1,"Credibilidad y Liderazgo","Los líderes comunican claramente los cambios y asuntos importantes.",69.43],
+    [2,"Credibilidad y Liderazgo","Mi jefe inmediato me da retroalimentación útil para hacer mejor mi trabajo.",73.65],
+    [3,"Credibilidad y Liderazgo","Confío en que las decisiones de mi equipo directivo son consistentes y transparentes.",69.21],
+    [4,"Credibilidad y Liderazgo","Siento que puedo expresar mis puntos de vista y son tomados en cuenta.",65.32],
+    [5,"Credibilidad y Liderazgo","Los líderes cumplen lo que prometen.",56.70],
+    [6,"Credibilidad y Liderazgo","Creo que la empresa despediría a las personas como última opción.",59.34],
+    [7,"Respeto y Desarrollo","Recibo capacitación útil que me ayuda a desarrollarme profesionalmente.",74.95],
+    [8,"Respeto y Desarrollo","En esta empresa se fomenta el crecimiento profesional de las personas.",64.16],
+    [9,"Respeto y Desarrollo","Cuento con los recursos y equipos necesarios para realizar bien mi trabajo.",77.55],
+    [10,"Respeto y Desarrollo","Mi jefe respeta el equilibrio entre mi vida laboral y personal.",78.29],
+    [11,"Respeto y Desarrollo","Mi espacio de trabajo me permite realizar mis actividades de manera segura y cómoda.",82.93],
+    [12,"Respeto y Desarrollo","Los jefes involucran a la gente en las decisiones que afectan su trabajo o ambiente laboral.",62.71],
+    [13,"Respeto y Desarrollo","Los jefes reconocen el trabajo bien hecho.",68.05],
+    [14,"Respeto y Desarrollo","Este es un lugar psicológicamente y emocionalmente saludable donde trabajar.",71.37],
+    [15,"Imparcialidad y Justicia","A las personas se les reconoce por el trabajo bien hecho.",62.29],
+    [16,"Imparcialidad y Justicia","Percibo que los ascensos y oportunidades se dan de manera justa.",49.94],
+    [17,"Imparcialidad y Justicia","Recibo un pago adecuado por el trabajo que desempeño.",70.72],
+    [18,"Imparcialidad y Justicia","Las normas y políticas se aplican de manera equitativa con todos los colaboradores.",70.77],
+    [19,"Imparcialidad y Justicia","Si soy tratado injustamente sé que tendré oportunidad de ser escuchado y recibir un trato justo.",70.35],
+    [20,"Orgullo","Me siento orgulloso de trabajar en CNH.",91.16],
+    [21,"Orgullo","Creo que mi trabajo hace una diferencia en los resultados de la empresa.",92.84],
+    [22,"Orgullo","Siento satisfacción al ver cómo mi trabajo contribuye a nuestros clientes.",94.33],
+    [23,"Orgullo","Recomendaría a CNH como un buen lugar para trabajar.",85.01],
+    [24,"Orgullo","Aquí las personas se adaptan rápidamente y con buena actitud a los cambios necesarios para el éxito de la organización.",71.61],
+    [25,"Compañerismo y Colaboración","Puedo confiar en mis compañeros de trabajo.",75.29],
+    [26,"Compañerismo y Colaboración","Existe un buen espíritu de colaboración entre áreas y equipos.",60.60],
+    [27,"Compañerismo y Colaboración","Puedo contar con la ayuda de las personas.",78.10],
+    [28,"Compañerismo y Colaboración","Siento que aquí puedo ser yo mismo.",80.24],
+    [29,"Semáforo Emocional (bienestar)","¿Cómo te has sentido en las últimas semanas? (% en zona verde)",86.13],
+  ].map(([n,dim,text,pos])=>({n,dim,text,pos}));
+
+  function scoreClass(v){ return v>=75 ? 'pos' : v>=55 ? 'neu' : 'neg'; }
+
+  function renderDims(seg){
+    const el = document.getElementById('dimRows');
+    el.innerHTML = DIMENSIONS.map(d=>{
+      const dist = DIST[d.name][seg];
+      const score = d[seg];
+      return `<div class="dim-row">
+        <div class="name">${d.name}<small>${d.n} preguntas</small></div>
+        <div class="stack">
+          <div class="neg" style="width:${dist[0]}%"></div>
+          <div class="neu" style="width:${dist[1]}%"></div>
+          <div class="pos" style="width:${dist[2]}%"></div>
+        </div>
+        <div class="score">${score}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('dimToggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#dimToggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDims(btn.dataset.seg);
+  });
+  renderDims('combinado');
+
+  function renderCompare(){
+    const el = document.getElementById('compareRows');
+    el.innerHTML = DIMENSIONS.map(d=>{
+      const delta = d.sindicalizados - d.empleados;
+      const sign = delta > 0 ? '+' : '';
+      const cls = delta > 0 ? 'up' : (delta < 0 ? 'down' : '');
+      return `<tr>
+        <td>${d.name}</td>
+        <td class="num">${d.empleados}</td>
+        <td class="num">${d.sindicalizados}</td>
+        <td class="num">${d.combinado}</td>
+        <td class="num"><span class="delta ${cls}">${sign}${delta}</span></td>
+      </tr>`;
+    }).join('');
+  }
+  renderCompare();
+
+  function renderCompanies(){
+    const el = document.getElementById('companyRows');
+    el.innerHTML = COMPANIES.map(c=>{
+      const pct = Math.round((c.responded/c.invited)*1000)/10;
+      return `<tr>
+        <td>${c.name}</td>
+        <td class="num">${c.invited}</td>
+        <td class="num">${c.responded}</td>
+        <td><span class="mini-bar"><i style="width:${pct}%"></i></span><span class="mono">${pct.toFixed(1)}%</span></td>
+      </tr>`;
+    }).join('');
+  }
+  renderCompanies();
+
+  function renderQuestions(filter){
+    const f = (filter||'').trim().toLowerCase();
+    const rows = QUESTIONS
+      .filter(q => !f || q.text.toLowerCase().includes(f) || q.dim.toLowerCase().includes(f))
+      .sort((a,b)=> a.pos - b.pos);
+    document.getElementById('qCount').textContent = rows.length + ' de ' + QUESTIONS.length + ' preguntas';
+    document.getElementById('qRows').innerHTML = rows.map(q=>`
+      <tr>
+        <td class="qdim-tag">${q.dim}</td>
+        <td>${q.n}. ${q.text}</td>
+        <td class="num"><span class="pill ${scoreClass(q.pos)}">${q.pos.toFixed(1)}%</span></td>
+      </tr>`).join('');
+  }
+  renderQuestions('');
+  document.getElementById('qSearch').addEventListener('input', (e)=> renderQuestions(e.target.value));
+</script>
