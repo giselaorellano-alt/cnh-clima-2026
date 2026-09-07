@@ -1,0 +1,711 @@
+<title>Clima CNH 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#f5f6f8;
+    --surface:#ffffff;
+    --ink:#303036;
+    --ink-soft:#636271;
+    --ink-faint:#9291a1;
+    --line:#dfe0e6;
+    --card-border:#dee5fb;
+    --accent:#496be3;
+    --accent-deep:#2c35a1;
+    --accent-soft:#f1f4fd;
+    --accent-border:#c5d4f8;
+    --pos:#28c040;
+    --pos-soft:#e8f8ec;
+    --neu:#de920c;
+    --neu-soft:#fbf0dd;
+    --neg:#d42e2e;
+    --neg-soft:#fbe9e9;
+    --shadow: -1px 4px 8px rgba(173,177,214,.28);
+    color-scheme: light;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Roboto', -apple-system, system-ui, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wrap{ max-width:1220px; margin:0 auto; padding:24px 24px 72px; }
+
+  header.top{
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    max-width:1220px; margin:0 auto; padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:16px; }
+  .brand-mark{
+    height:28px; width:auto; flex-shrink:0; display:block;
+  }
+  .brand-divider{ width:1px; height:30px; background:var(--line); flex-shrink:0; }
+  .brand h1{ margin:0; font-size:18px; font-weight:600; letter-spacing:-.005em; }
+  .brand p{ margin:1px 0 0; font-size:12px; color:var(--ink-soft); }
+  .top-meta{ font-size:12px; color:var(--ink-soft); text-align:right; }
+
+  section{ margin-top:28px; }
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .section-head .head-text{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .section-head h2{ margin:0; font-size:16px; font-weight:600; }
+  .section-head p.sub{ margin:0; font-size:12.5px; color:var(--ink-soft); }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--card-border);
+    border-radius:8px;
+    box-shadow:var(--shadow);
+  }
+
+  /* KPI row */
+  .kpi-grid{ display:flex; gap:14px; flex-wrap:wrap; }
+  .kpi{ flex:1 1 180px; padding:16px; }
+  .kpi .label{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+  .kpi .value{ font-size:26px; font-weight:600; letter-spacing:-.01em; line-height:1; color:var(--ink); }
+  .kpi .value small{ font-size:13px; font-weight:500; color:var(--ink-soft); }
+  .kpi .foot{ font-size:11.5px; color:var(--ink-faint); margin-top:8px; }
+
+  /* filter / toggle panel */
+  .filter-panel{ padding:16px 18px; margin-bottom:16px; }
+  .filter-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .filter-row .fr-label{ font-size:12.5px; color:var(--ink-soft); margin-right:2px; flex-shrink:0; }
+  .filter-note{ margin:10px 0 0; font-size:11.5px; color:var(--ink-faint); }
+  .toggle{ display:inline-flex; gap:8px; flex-wrap:wrap; }
+  .toggle button{
+    font-family:inherit; font-size:13px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--line);
+    padding:6px 14px; border-radius:999px; cursor:pointer; font-weight:400;
+  }
+  .toggle button.active{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .toggle button:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  .reset-link{
+    font-size:12.5px; color:var(--accent); background:none; border:none; cursor:pointer;
+    padding:0; font-family:inherit; text-decoration:underline; margin-left:4px;
+  }
+
+  /* inline "Valor" row (search + dropdown), à la Agronorte */
+  .filter-row.value-row-inline{ margin-top:12px; padding-top:12px; border-top:1px solid var(--bg); }
+  .value-search{
+    font-family:inherit; font-size:13px; padding:7px 10px; border-radius:6px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); min-width:170px;
+  }
+  .value-search:focus-visible{ outline:2px solid var(--accent); }
+  .value-select{
+    font-family:inherit; font-size:13px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:7px 10px; min-width:210px;
+  }
+  .value-select:focus-visible{ outline:2px solid var(--accent); }
+
+  /* filter summary strip: favorabilidad / eNPS / participación del corte activo */
+  .seg-summary{
+    display:flex; align-items:center; flex-wrap:wrap; gap:6px 18px;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--bg);
+    font-size:12.5px; color:var(--ink-soft);
+  }
+  .seg-summary .active-filter{ font-weight:600; color:var(--ink); }
+  .seg-summary .stat b{ color:var(--ink); font-weight:600; }
+  .dl-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:inherit; font-size:12.5px; font-weight:600; color:var(--accent-deep);
+    background:var(--accent-soft); border:1px solid var(--accent-border);
+    padding:7px 13px; border-radius:7px; cursor:pointer; white-space:nowrap;
+  }
+  .dl-btn:hover{ background:var(--accent-border); }
+  .dl-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  /* two-column layout: dimensiones + ranking side by side */
+  .split-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:16px; align-items:start; }
+  @media (max-width:900px){ .split-grid{ grid-template-columns:1fr; } }
+  .rank-panel{ padding:18px; }
+  .rank-panel .table-inner{ overflow-x:auto; }
+
+  /* dimension bars */
+  .dim-panel{ padding:18px; }
+  .dim-panel .dim-title{ font-size:13px; font-weight:600; margin:0 0 14px; color:var(--ink-soft); }
+  .dim-panel .dim-title strong{ color:var(--ink); }
+  .dim-row{ display:grid; grid-template-columns:210px 1fr 44px; gap:16px; align-items:center; padding:9px 0; border-top:1px solid var(--bg); }
+  .dim-row:first-of-type{ border-top:none; }
+  .dim-row .name{ font-size:13px; font-weight:500; }
+  .dim-bar{ height:20px; border-radius:5px; overflow:hidden; background:var(--bg); display:flex; }
+  .dim-bar > i{ display:block; height:100%; border-radius:5px; }
+  .dim-bar.single{ display:block; height:10px; }
+  .dim-bar.table-bar{ width:220px; }
+  .dim-bar.single > i{ height:100%; }
+  .dim-bar .seg{ height:100%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; overflow:hidden; }
+  .dim-bar .seg.neg{ background:var(--neg); }
+  .dim-bar .seg.neu{ background:var(--neu); }
+  .dim-bar .seg.pos{ background:var(--pos); }
+  .dim-legend{ display:flex; align-items:center; gap:16px; margin-bottom:14px; font-size:11.5px; color:var(--ink-soft); }
+  .dim-legend .lg{ display:flex; align-items:center; gap:5px; }
+  .dim-legend .sw{ width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+  .dim-legend .sw.neg{ background:var(--neg); }
+  .dim-legend .sw.neu{ background:var(--neu); }
+  .dim-legend .sw.pos{ background:var(--pos); }
+  .dim-row .score{ text-align:right; font-size:14px; font-weight:600; }
+  @media (max-width:640px){ .dim-row{ grid-template-columns:130px 1fr 38px; gap:10px; } }
+
+  /* tables */
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent-deep); font-weight:700; background:var(--accent-soft);
+    padding:8px 10px;
+  }
+  th:first-child{ border-radius:6px 0 0 6px; }
+  th:last-child{ border-radius:0 6px 6px 0; }
+  th.num, td.num{ text-align:right; }
+  td{ padding:10px; border-bottom:1px solid var(--bg); vertical-align:middle; }
+  tr:last-child td{ border-bottom:none; }
+  .table-wrap{ overflow-x:auto; padding:16px; }
+  .delta{ font-size:12px; font-weight:600; }
+  .delta.up{ color:var(--pos); }
+  .delta.down{ color:var(--neg); }
+  .mini-bar{ width:64px; height:6px; border-radius:4px; background:var(--bg); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; }
+  .mini-bar > i{ display:block; height:100%; }
+  .fav-cell{ display:flex; align-items:center; justify-content:flex-end; gap:8px; white-space:nowrap; }
+  .fav-cell .num{ font-weight:600; font-size:12.5px; }
+  .fav-cell.pos .num{ color:var(--pos); }
+  .fav-cell.neu .num{ color:var(--neu); }
+  .fav-cell.neg .num{ color:var(--neg); }
+  .mini-bar.pos > i, .dim-bar.pos > i{ background:var(--pos); }
+  .mini-bar.neu > i, .dim-bar.neu > i{ background:var(--neu); }
+  .mini-bar.neg > i, .dim-bar.neg > i{ background:var(--neg); }
+  .pill-num{ font-weight:600; }
+  .pill-num.pos{ color:var(--pos); }
+  .pill-num.neu{ color:var(--neu); }
+  .pill-num.neg{ color:var(--neg); }
+
+  /* questions table */
+  .q-filter{ display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:0; padding:16px 16px 0; flex-wrap:wrap; }
+  .q-search{
+    font-family:inherit; font-size:13px; padding:8px 12px; border-radius:6px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); min-width:240px;
+  }
+  .q-search:focus-visible{ outline:2px solid var(--accent); }
+  .qdim-tag{ font-size:11px; color:var(--ink-faint); }
+
+  footer.notes{
+    margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .notes-accordion{
+    background:var(--surface); border:1px solid var(--card-border); border-radius:8px;
+    box-shadow:var(--shadow); padding:4px 18px;
+  }
+  .notes-accordion summary{
+    font-size:13px; font-weight:600; padding:12px 0; cursor:pointer; list-style:none;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .notes-accordion summary::-webkit-details-marker{ display:none; }
+  .notes-accordion summary::after{
+    content:'\25BE'; color:var(--ink-faint); font-size:13px; transition:transform .15s ease;
+  }
+  .notes-accordion[open] summary::after{ transform:rotate(180deg); }
+  .notes-accordion summary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  footer.notes ol{ margin:0; padding:2px 0 16px 18px; font-size:12px; color:var(--ink-soft); }
+  footer.notes li{ margin-bottom:7px; }
+  footer.notes .sign{ margin-top:14px; font-size:11px; color:var(--ink-faint); }
+
+  [hidden]{ display:none !important; }
+
+  @media print{
+    body{ background:#fff; }
+    header.top, footer.notes .notes-accordion summary::after,
+    .toggle, .value-row-inline, #resetLink, .dl-btn,
+    .q-filter .q-search, #qSearch{ display:none !important; }
+    .card{ box-shadow:none; border-color:#ccd; break-inside:avoid; }
+    section{ margin-top:16px; }
+    .wrap{ padding:0; max-width:100%; }
+    .notes-accordion{ padding:4px 18px 12px; }
+    .notes-accordion[open] summary{ margin-bottom:4px; }
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <img class="brand-mark" alt="CNH" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQoAAABhCAYAAAAuj+/kAAADoElEQVR4nO3dQZKbMBBAUZzKLbyY+x/LC85BFimqHMeAZITVkt5bZjMT1P4WGDO3ZVkmgD2/av8CQHxCARwSCuCQUACHhAI49Lv2L5Dqfv9p8uOZeX7c3v17yf/P1s/oxVVr38Nxu+LYvDsuIUPRahRqeT5ePQw/8YQIhTCUsx5LwaCkaqEQh2vd7z+LWFDKV0MhDt9ld0EpX/nU437/WUSiHseesy4PhSGNwTpwxmWnHgYT+lE8FAIRl2sWfKroqYdItME6katYKAwf9Ot0KHyi0SZrRo5ToTBsbbN+pPLt0cGJBSk+DoUB64e15MhHoTBY/bGm7MkOhYHql7Vli2sU/EMseCcrFIZoDNaZV3YUvCUWPEsOhcEZjzVnZUfBLrFgmhK/PRpxWHwD8ns8Vo8QD9dNYVDrEouxHZ561N5NzPPjZkBjqD0L1BP6GoVAxCMWY9oNRc2hEIm4xGI84XYUTjXaIBZjCRUKgWiLWIwjVChoj1iMIUwo7CbaJRb92wyFxadn3pjyhLjhyqKVM8+PW43It/Y3Q7wR5glz6kE5rbxYaUf1UBjqa9Q6rt6p+1Q9FFxHLChFKDonFpRQNRROO75DLDjLjmIQYsEZQsHlxKJ9QjGQmqd6YtE2oRiMWPAJoRiQWJBLKAYlFuQQioGJBamEYnBiQQqhQCw4JBRM0yQW7KsaCgMSi1iwxY6Cf4gF7wgF/xELXlUPhcGISSx4Vj0UxCUWrEKEwlDEJRZM085TuGs9zZl4as7CVT+3l4cmfWtdQuwopsm7R3S9vLBW5i1PmFAQX2+xIF2oUKh8fGIxplChmCaxaIFYjGc3FB7IyhaxGEu4HcVKLOITi3GEDcU0/Y2FYMQmFmM4DEWEQViDIRoxRZgRrrV5w1VULcVipBeQG/T6lnTqMdLAlzTaC8ec9Cv0NQraIxZ9Sg6FAYBx2VFQnDeV/mSFwgCQyqz0JXtHYQBIZVb68dGphwEglVnpg2sUXE4s2vdxKCw+OcxL207tKCw+OcxLu06felh8cpiXNhW5RmHxyWFe2lPsYqbFJ4d5aUvRTz3m+XEzAKQyK+245ONRwSCVOWnDpfdRGAJSmJP4Lr/hyu6CFGYktq/dmbkGw0CwxWzEVeUWbtFgi5mIqfozM58HY7RHx/HeOhPmIY7qoXj2+m5iUMbmgb1xhArFq5RtaORB2vv9vQjSXLXjdIqT57YsZhXY53kUwCGhAA4JBXBIKIBDfwBs6r7wwSavEQAAAABJRU5ErkJggg==">
+      <div class="brand-divider"></div>
+      <div>
+        <h1>Encuesta de Clima &middot; 2026</h1>
+        <p>CNH Industrial, Comercial, Capital y M&eacute;xico</p>
+      </div>
+    </div>
+    <div class="top-meta">Encuesta de Clima 2026 &middot; septiembre 2026</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section style="margin-top:20px;">
+    <div class="kpi-grid">
+      <div class="kpi card">
+        <p class="label">Favorabilidad general</p>
+        <p class="value">73<small>/100</small></p>
+        <p class="foot">Combinada, unificada pregunta por pregunta</p>
+      </div>
+      <div class="kpi card">
+        <p class="label">eNPS</p>
+        <p class="value">51</p>
+        <p class="foot">Promotores 61% &middot; Detractores 10%</p>
+      </div>
+      <div class="kpi card">
+        <p class="label">Participaci&oacute;n</p>
+        <p class="value">79%</p>
+        <p class="foot">444 de 562 invitados</p>
+      </div>
+      <div class="kpi card">
+        <p class="label">Respuestas analizadas</p>
+        <p class="value">444</p>
+        <p class="foot">Base para favorabilidad y eNPS combinados</p>
+      </div>
+      <div class="kpi card">
+        <p class="label">Dimensiones de clima</p>
+        <p class="value">5<small>+1</small></p>
+        <p class="foot">29 preguntas &middot; incluye pulso de bienestar</p>
+      </div>
+    </div>
+
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="head-text">
+        <h2>Favorabilidad por segmento</h2>
+        <p class="sub">% de respuestas &ldquo;de acuerdo&rdquo; + &ldquo;totalmente de acuerdo&rdquo; sobre el total de cada pregunta. Todos los cortes salen de la segmentaci&oacute;n real cargada en Humand.</p>
+      </div>
+      <button type="button" class="dl-btn" id="downloadBtn">&#8595; Descargar PDF</button>
+    </div>
+
+    <div class="filter-panel card">
+      <div class="filter-row">
+        <span class="fr-label">Ver por:</span>
+        <div class="toggle" id="catToggle">
+          <button data-cat="general" class="active">General</button>
+          <button data-cat="categoria">Categor&iacute;a de empleado</button>
+          <button data-cat="empresa">Empresa</button>
+          <button data-cat="genero">G&eacute;nero</button>
+          <button data-cat="direccion">Direcci&oacute;n</button>
+          <button data-cat="jefe">Jefe directo</button>
+        </div>
+      </div>
+      <div class="filter-row value-row-inline" id="valueRow" hidden>
+        <span class="fr-label">Valor:</span>
+        <input type="text" class="value-search" id="valueSearch" placeholder="Buscar&hellip;">
+        <select class="value-select" id="valueSelect"></select>
+        <button class="reset-link" id="resetLink">Volver a General</button>
+      </div>
+      <p class="filter-note" id="catNote" hidden></p>
+      <div class="seg-summary" id="segSummary"></div>
+    </div>
+
+    <div class="split-grid">
+      <div class="dim-panel card">
+        <p class="dim-title" id="dimTitle"></p>
+        <div id="dimRows"></div>
+      </div>
+      <div class="card rank-panel">
+        <p class="dim-title" id="rankTitle"></p>
+        <div class="table-inner">
+          <table>
+            <thead id="rankHead"></thead>
+            <tbody id="rankRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="head-text">
+        <h2>Detalle por pregunta</h2>
+        <p class="sub">Ordenado de menor a mayor favorabilidad &middot; favorabilidad combinada real (Empleados + Sindicalizados, ponderada por respuestas).</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="q-filter">
+        <input class="q-search" id="qSearch" type="text" placeholder="Buscar pregunta o dimensi&oacute;n&hellip;">
+        <span class="qdim-tag" id="qCount"></span>
+      </div>
+      <div class="table-wrap" style="padding-top:10px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:16%">Dimensi&oacute;n</th>
+              <th>Pregunta</th>
+              <th class="num" style="width:130px">Favorabilidad</th>
+            </tr>
+          </thead>
+          <tbody id="qRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="notes">
+    <details class="notes-accordion">
+    <summary>Notas metodol&oacute;gicas</summary>
+    <ol>
+      <li><strong>Fuentes:</strong> 1) &ldquo;Encuesta de Clima CNH 2026&rdquo; en People Experience (Empleados, 4 empresas, n=345); 2) &ldquo;Encuesta de clima CNH 2026&rdquo; en el m&oacute;dulo Encuestas cl&aacute;sico (Sindicalizados, mismas 4 empresas, n=217).</li>
+      <li><strong>Favorabilidad:</strong> % de respuestas &ldquo;de acuerdo&rdquo; + &ldquo;totalmente de acuerdo&rdquo; sobre el total de respuestas de cada pregunta (m&eacute;todo cl&aacute;sico). Se extrajo el puntaje real pregunta por pregunta de <em>ambas</em> encuestas &mdash; Empleados (286 respuestas, People Experience) y Sindicalizados (165 respuestas, m&oacute;dulo Encuestas cl&aacute;sico) &mdash; y se unific&oacute; cada una de las 29 preguntas ponderando por cantidad de respuestas de cada fuente. El total general (73) y el KPI de Favorabilidad surgen de esa misma base unificada, no de un promedio de promedios.</li>
+      <li><strong>eNPS:</strong> Promotores (totalmente de acuerdo en &ldquo;recomendar&iacute;a trabajar en CNH&rdquo;) menos Detractores (1 a 3 en esa misma pregunta), sobre la pregunta 23. El valor de Empleados es el nativo de Humand (57); el de Sindicalizados se calcul&oacute; con la misma f&oacute;rmula sobre las 165 respuestas reales (41), ya que la encuesta cl&aacute;sica no calcula eNPS autom&aacute;ticamente. El eNPS combinado (51) pondera ambos por cantidad de respuestas. El eNPS por Empresa, G&eacute;nero y Direcci&oacute;n es el nativo de Humand (panel &ldquo;eNPS seg&uacute;n&rdquo; de People Experience, base Empleados). Ese panel no permite desagregar por jefe individual, por lo que en Jefe directo el eNPS se muestra como &ldquo;&mdash;&rdquo;.</li>
+      <li><strong>Favorabilidad por segmento:</strong> Categor&iacute;a de empleado sale de ambas encuestas (es el &uacute;nico corte que cubre a toda la dotaci&oacute;n relevada). Empresa, G&eacute;nero y Direcci&oacute;n salen del Mapa de calor de la encuesta de Empleados en People Experience (segmentos Empresas, GENERO y Direcciones de Humand) &mdash; la encuesta de Sindicalizados corre en el m&oacute;dulo Encuestas cl&aacute;sico, que no ofrece segmentaci&oacute;n de resultados, por lo que esos tres cortes son exclusivos de Empleados. Los valores de dotaci&oacute;n y g&eacute;nero se validaron contra la segmentaci&oacute;n real cargada en Humand (737 personas &middot; 640 Male / 97 Female).</li>
+      <li><strong>Jefe directo:</strong> segmento nativo de Humand &ldquo;Jefe (reportes directos)&rdquo; (base Empleados, People Experience) &mdash; a diferencia de &ldquo;Jefe (equipo completo)&rdquo;, que acumula todo el organigrama debajo de una persona, este corte muestra el puntaje real de cada jefe con su equipo directo. El organigrama tiene varios niveles (hasta 5), por lo que se recorri&oacute; completo hasta identificar, para cada rama, el nivel donde el puntaje corresponde al jefe inmediato real de ese equipo. Por el umbral de anonimato de Humand (m&iacute;nimo 4 respuestas propias) solo se pueden mostrar 23 jefes directos, que cubren 118 de las 286 respuestas de Empleados (41%); el resto de las personas reporta a jefes con equipos m&aacute;s chicos, que Humand no desagrega individualmente para proteger el anonimato. Humand tampoco expone eNPS ni desglose positivo/neutro/negativo a este nivel de segmentaci&oacute;n.</li>
+      <li><strong>Desglose Negativo / Neutral / Positivo:</strong> en General y Categor&iacute;a de empleado sale de datos reales: para Empleados, de la distribuci&oacute;n nativa de Humand en &ldquo;Dimensiones y preguntas&rdquo;; para Sindicalizados, calculado a partir del detalle de respuestas por cada opci&oacute;n Likert (1 a 5) de las 165 respuestas de la encuesta cl&aacute;sica. Para Empresa, G&eacute;nero, Direcci&oacute;n y Jefe directo, Humand no expone ese desglose por segmento en esta encuesta, por lo que esos cortes muestran &uacute;nicamente el puntaje total (barra de un solo color).</li>
+      <li><strong>Comentarios abiertos:</strong> la encuesta de Empleados registr&oacute; 604 comentarios de texto libre. No se reproducen en este reporte por volumen y por tratarse de respuestas potencialmente identificables en &aacute;reas peque&ntilde;as; est&aacute;n disponibles en Humand &rarr; People Experience &rarr; Resultados.</li>
+      <li><strong>CNH Componentes</strong> (183 personas, ~25% de la dotaci&oacute;n) no integr&oacute; ninguna de las 7 encuestas revisadas.</li>
+    </ol>
+    </details>
+    <p class="sign">Preparado por Humand CX a partir de admin.humand.co &middot; septiembre 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const DIM_LABELS = [
+    ["credLid",   "Credibilidad y Liderazgo"],
+    ["respDes",   "Respeto y Desarrollo"],
+    ["impJust",   "Imparcialidad y Justicia"],
+    ["orgullo",   "Orgullo"],
+    ["compColab", "Compañerismo y Colaboración"],
+    ["semaforo",  "Semáforo Emocional (bienestar)"],
+  ];
+
+  // Todos los valores de "dims" y "total" salen del Mapa de calor / Dimensiones y
+  // preguntas de Humand (puntaje real por dimensión), o -- para "general" y
+  // "categoria" -- de la unificación ponderada Empleados+Sindicalizados pregunta
+  // por pregunta (ver notas metodológicas).
+  const SEGMENTS = {
+    general: {
+      label: "General",
+      isGeneral: true,
+      value: { name:"Combinado (Empleados + Sindicalizados)", n:444, enps:51,
+        dims:{credLid:66, respDes:72, impJust:65, orgullo:87, compColab:74, semaforo:86}, total:73,
+        dist:{
+          credLid:{pos:66,neu:20,neg:14}, respDes:{pos:72,neu:16,neg:12}, impJust:{pos:65,neu:21,neg:14},
+          orgullo:{pos:87,neu:9,neg:4}, compColab:{pos:74,neu:17,neg:9}, semaforo:{pos:86,neu:9,neg:5},
+        } },
+    },
+    categoria: {
+      label: "Categoría de empleado",
+      note: "Único corte que cubre a toda la dotación relevada: Empleado = People Experience (n=286); Sindicalizado = módulo Encuestas clásico (participación sobre 217, favorabilidad calculada sobre las 165 respuestas registradas).",
+      values: [
+        { name:"Empleado",      n:286, invited:345, enps:57, dims:{credLid:68, respDes:72, impJust:65, orgullo:86, compColab:72, semaforo:82}, total:73,
+          dist:{
+            credLid:{pos:68,neu:20,neg:12}, respDes:{pos:72,neu:16,neg:12}, impJust:{pos:65,neu:21,neg:14},
+            orgullo:{pos:86,neu:11,neg:3}, compColab:{pos:72,neu:18,neg:10}, semaforo:{pos:82,neu:13,neg:5},
+          } },
+        { name:"Sindicalizado", n:158, invited:217, enps:41, dims:{credLid:62, respDes:73, impJust:65, orgullo:88, compColab:77, semaforo:93}, total:73,
+          dist:{
+            credLid:{pos:62,neu:21,neg:17}, respDes:{pos:73,neu:14,neg:13}, impJust:{pos:65,neu:20,neg:15},
+            orgullo:{pos:88,neu:6,neg:6}, compColab:{pos:77,neu:15,neg:8}, semaforo:{pos:93,neu:3,neg:4},
+          } },
+      ],
+    },
+    empresa: {
+      label: "Empresa",
+      note: "Base Empleados (People Experience) — Sindicalizados no segmenta resultados por empresa en la plataforma. El desglose positivo/neutro/negativo por dimensión solo está disponible a nivel Empleados/Sindicalizados y General (ver nota al pie).",
+      values: [
+        { name:"CNH México",    n:105, invited:116, enps:48, dims:{credLid:68, respDes:70, impJust:64, orgullo:82, compColab:67, semaforo:80}, total:71 },
+        { name:"CNH Capital",   n:27,  invited:31,  enps:67, dims:{credLid:56, respDes:69, impJust:56, orgullo:88, compColab:66, semaforo:74}, total:67 },
+        { name:"CNH Comercial", n:61,  invited:78,  enps:72, dims:{credLid:77, respDes:82, impJust:74, orgullo:92, compColab:83, semaforo:90}, total:82 },
+        { name:"CNH Industrial",n:93,  invited:120, enps:56, dims:{credLid:66, respDes:67, impJust:64, orgullo:87, compColab:70, semaforo:82}, total:71 },
+      ],
+    },
+    genero: {
+      label: "Género",
+      note: "Base Empleados (People Experience) — Sindicalizados no tiene este desglose disponible en la plataforma. El desglose positivo/neutro/negativo por dimensión solo está disponible a nivel Empleados/Sindicalizados y General (ver nota al pie).",
+      values: [
+        { name:"Female", n:79,  invited:89,  enps:52, dims:{credLid:66, respDes:71, impJust:64, orgullo:82, compColab:64, semaforo:78}, total:70 },
+        { name:"Male",   n:207, invited:256, enps:59, dims:{credLid:69, respDes:72, impJust:66, orgullo:88, compColab:74, semaforo:84}, total:74 },
+      ],
+    },
+    direccion: {
+      label: "Dirección",
+      note: "Base Empleados (People Experience) — Sindicalizados no segmenta resultados por dirección en la plataforma. El desglose positivo/neutro/negativo por dimensión solo está disponible a nivel Empleados/Sindicalizados y General (ver nota al pie).",
+      values: [
+        { name:"Desarrollo del Producto",   n:35, invited:38,  enps:80, dims:{credLid:81, respDes:83, impJust:77, orgullo:94, compColab:84, semaforo:97},  total:84 },
+        { name:"Calidad",                   n:17, invited:18,  enps:88, dims:{credLid:76, respDes:80, impJust:77, orgullo:98, compColab:75, semaforo:100}, total:82 },
+        { name:"Comercial",                 n:58, invited:74,  enps:71, dims:{credLid:76, respDes:81, impJust:73, orgullo:92, compColab:83, semaforo:90},  total:81 },
+        { name:"Recursos Humanos",          n:21, invited:21,  enps:57, dims:{credLid:71, respDes:76, impJust:69, orgullo:83, compColab:73, semaforo:81},  total:75 },
+        { name:"Dirección General",         n:4,  invited:4,   enps:50, dims:{credLid:63, respDes:67, impJust:56, orgullo:75, compColab:75, semaforo:100}, total:68 },
+        { name:"Capital",                   n:27, invited:31,  enps:67, dims:{credLid:56, respDes:69, impJust:56, orgullo:88, compColab:66, semaforo:74},  total:67 },
+        { name:"Administración y Finanzas", n:38, invited:42,  enps:45, dims:{credLid:63, respDes:63, impJust:59, orgullo:80, compColab:67, semaforo:71},  total:66 },
+        { name:"Operaciones",               n:86, invited:117, enps:36, dims:{credLid:61, respDes:62, impJust:58, orgullo:80, compColab:61, semaforo:74},  total:65 },
+      ],
+    },
+    jefe: {
+      label: "Jefe directo",
+      note: "Base Empleados (People Experience), segmento nativo de Humand “Jefe (reportes directos)”: cada valor es el jefe directo real de ese equipo. Por el umbral de anonimato de Humand solo se muestran jefes con 4 o más respuestas propias — cubre 118 de las 286 respuestas de Empleados (41%); el resto reporta a jefes con equipos más chicos, que Humand no desagrega para proteger el anonimato. Humand tampoco expone eNPS ni desglose positivo/neutro/negativo a este nivel de segmentación (por eso el eNPS figura como “—” y las barras son de un solo color).",
+      values: [
+        { name:"Maria Isabel Soto Alvarez",            n:4,  invited:4,  enps:null, dims:{credLid:88, respDes:81, impJust:75, orgullo:70,  compColab:50, semaforo:75},  total:75 },
+        { name:"Roxana Araujo Espindola",              n:5,  invited:5,  enps:null, dims:{credLid:93, respDes:87, impJust:80, orgullo:88,  compColab:80, semaforo:100}, total:87 },
+        { name:"Maribel Gonzalez Chavez",              n:4,  invited:4,  enps:null, dims:{credLid:71, respDes:69, impJust:56, orgullo:90,  compColab:75, semaforo:75},  total:72 },
+        { name:"Alfonso Monge Lopez",                  n:4,  invited:4,  enps:null, dims:{credLid:63, respDes:89, impJust:56, orgullo:80,  compColab:56, semaforo:75},  total:72 },
+        { name:"Martha Cruz Roa Benhumea",              n:5,  invited:5,  enps:null, dims:{credLid:50, respDes:58, impJust:60, orgullo:76,  compColab:70, semaforo:60},  total:61 },
+        { name:"Esther Ortiz Gómez",              n:4,  invited:4,  enps:null, dims:{credLid:88, respDes:81, impJust:81, orgullo:85,  compColab:69, semaforo:75},  total:81 },
+        { name:"Juan Carlos Ramirez Cruz",             n:4,  invited:7,  enps:null, dims:{credLid:63, respDes:75, impJust:50, orgullo:85,  compColab:69, semaforo:75},  total:70 },
+        { name:"Raul Colin Jaramillo",                 n:10, invited:11, enps:null, dims:{credLid:25, respDes:12, impJust:33, orgullo:76,  compColab:38, semaforo:60},  total:34 },
+        { name:"Veronica Cacho Guerrero",              n:4,  invited:5,  enps:null, dims:{credLid:71, respDes:67, impJust:63, orgullo:85,  compColab:69, semaforo:75},  total:71 },
+        { name:"Monserrat Alcantar Macedo",            n:4,  invited:5,  enps:null, dims:{credLid:79, respDes:81, impJust:75, orgullo:85,  compColab:88, semaforo:100}, total:82 },
+        { name:"Ana Ivette Gomez Rosales",             n:6,  invited:6,  enps:null, dims:{credLid:50, respDes:69, impJust:37, orgullo:87,  compColab:46, semaforo:100}, total:62 },
+        { name:"Sonia Alejandra Reyes Hernandez",      n:4,  invited:4,  enps:null, dims:{credLid:21, respDes:25, impJust:19, orgullo:60,  compColab:19, semaforo:50},  total:29 },
+        { name:"Jorge Morales Mendez",                 n:6,  invited:7,  enps:null, dims:{credLid:89, respDes:91, impJust:79, orgullo:93,  compColab:75, semaforo:83},  total:87 },
+        { name:"Jose Guadalupe Avendaño Zúñiga", n:4, invited:5, enps:null, dims:{credLid:21, respDes:22, impJust:19, orgullo:50, compColab:31, semaforo:25}, total:28 },
+        { name:"Agustin Juarez Velazquez",             n:8,  invited:9,  enps:null, dims:{credLid:86, respDes:85, impJust:75, orgullo:93,  compColab:82, semaforo:88},  total:85 },
+        { name:"Alejandra Gonzalez Arroyo",            n:5,  invited:5,  enps:null, dims:{credLid:77, respDes:60, impJust:60, orgullo:80,  compColab:65, semaforo:80},  total:68 },
+        { name:"Arturo Mena Covarrubias",              n:6,  invited:8,  enps:null, dims:{credLid:70, respDes:81, impJust:67, orgullo:97,  compColab:79, semaforo:100}, total:80 },
+        { name:"Jorge Eduardo Serna Niño",        n:5,  invited:8,  enps:null, dims:{credLid:83, respDes:76, impJust:65, orgullo:100, compColab:90, semaforo:100}, total:83 },
+        { name:"Jose Manuel Perez Guerra",             n:4,  invited:6,  enps:null, dims:{credLid:63, respDes:69, impJust:69, orgullo:90,  compColab:94, semaforo:75},  total:75 },
+        { name:"Raymundo Alejandro Rangel Ramirez",    n:5,  invited:6,  enps:null, dims:{credLid:70, respDes:89, impJust:75, orgullo:92,  compColab:80, semaforo:100}, total:83 },
+        { name:"Monica Martinez Hernandez",            n:5,  invited:5,  enps:null, dims:{credLid:93, respDes:80, impJust:95, orgullo:96,  compColab:85, semaforo:100}, total:89 },
+        { name:"Mario Ortiz Trejo",                    n:8,  invited:8,  enps:null, dims:{credLid:82, respDes:84, impJust:76, orgullo:98,  compColab:97, semaforo:100}, total:87 },
+        { name:"Aristeo Cervantes Pérez",         n:4,  invited:5,  enps:null, dims:{credLid:92, respDes:92, impJust:94, orgullo:100, compColab:88, semaforo:100}, total:93 },
+      ],
+    },
+  };
+
+  // Favorabilidad combinada por pregunta: promedio ponderado por cantidad de
+  // respuestas de cada fuente (Empleados n=286, Sindicalizados n=165) sobre el
+  // dato real pregunta por pregunta de ambas encuestas.
+  const QUESTIONS = [
+    [1,"Credibilidad y Liderazgo","Los líderes comunican claramente los cambios y asuntos importantes.",69.43],
+    [2,"Credibilidad y Liderazgo","Mi jefe inmediato me da retroalimentación útil para hacer mejor mi trabajo.",73.65],
+    [3,"Credibilidad y Liderazgo","Confío en que las decisiones de mi equipo directivo son consistentes y transparentes.",69.21],
+    [4,"Credibilidad y Liderazgo","Siento que puedo expresar mis puntos de vista y son tomados en cuenta.",65.32],
+    [5,"Credibilidad y Liderazgo","Los líderes cumplen lo que prometen.",56.70],
+    [6,"Credibilidad y Liderazgo","Creo que la empresa despediría a las personas como última opción.",59.34],
+    [7,"Respeto y Desarrollo","Recibo capacitación útil que me ayuda a desarrollarme profesionalmente.",74.95],
+    [8,"Respeto y Desarrollo","En esta empresa se fomenta el crecimiento profesional de las personas.",64.16],
+    [9,"Respeto y Desarrollo","Cuento con los recursos y equipos necesarios para realizar bien mi trabajo.",77.55],
+    [10,"Respeto y Desarrollo","Mi jefe respeta el equilibrio entre mi vida laboral y personal.",78.29],
+    [11,"Respeto y Desarrollo","Mi espacio de trabajo me permite realizar mis actividades de manera segura y cómoda.",82.93],
+    [12,"Respeto y Desarrollo","Los jefes involucran a la gente en las decisiones que afectan su trabajo o ambiente laboral.",62.71],
+    [13,"Respeto y Desarrollo","Los jefes reconocen el trabajo bien hecho.",68.05],
+    [14,"Respeto y Desarrollo","Este es un lugar psicológicamente y emocionalmente saludable donde trabajar.",71.37],
+    [15,"Imparcialidad y Justicia","A las personas se les reconoce por el trabajo bien hecho.",62.29],
+    [16,"Imparcialidad y Justicia","Percibo que los ascensos y oportunidades se dan de manera justa.",49.94],
+    [17,"Imparcialidad y Justicia","Recibo un pago adecuado por el trabajo que desempeño.",70.72],
+    [18,"Imparcialidad y Justicia","Las normas y políticas se aplican de manera equitativa con todos los colaboradores.",70.77],
+    [19,"Imparcialidad y Justicia","Si soy tratado injustamente sé que tendré oportunidad de ser escuchado y recibir un trato justo.",70.35],
+    [20,"Orgullo","Me siento orgulloso de trabajar en CNH.",91.16],
+    [21,"Orgullo","Creo que mi trabajo hace una diferencia en los resultados de la empresa.",92.84],
+    [22,"Orgullo","Siento satisfacción al ver cómo mi trabajo contribuye a nuestros clientes.",94.33],
+    [23,"Orgullo","Recomendaría a CNH como un buen lugar para trabajar.",85.01],
+    [24,"Orgullo","Aquí las personas se adaptan rápidamente y con buena actitud a los cambios necesarios para el éxito de la organización.",71.61],
+    [25,"Compañerismo y Colaboración","Puedo confiar en mis compañeros de trabajo.",75.29],
+    [26,"Compañerismo y Colaboración","Existe un buen espíritu de colaboración entre áreas y equipos.",60.60],
+    [27,"Compañerismo y Colaboración","Puedo contar con la ayuda de las personas.",78.10],
+    [28,"Compañerismo y Colaboración","Siento que aquí puedo ser yo mismo.",80.24],
+    [29,"Semáforo Emocional (bienestar)","¿Cómo te has sentido en las últimas semanas? (% en zona verde)",86.13],
+  ].map(([n,dim,text,pos])=>({n,dim,text,pos}));
+
+  function scoreClass(v){ return v>=75 ? 'pos' : v>=55 ? 'neu' : 'neg'; }
+
+  // ---------- Favorabilidad por segmento ----------
+  let currentCat = 'general';
+  let currentValue = null; // index into SEGMENTS[currentCat].values
+
+  function renderDimsFor(name, dims, total, dist){
+    document.getElementById('dimTitle').innerHTML = 'Favorabilidad por dimensión &middot; <strong>' + name + '</strong>';
+    const legend = dist ? `<div class="dim-legend">
+        <span class="lg"><span class="sw neg"></span>Negativo</span>
+        <span class="lg"><span class="sw neu"></span>Neutral</span>
+        <span class="lg"><span class="sw pos"></span>Positivo</span>
+      </div>` : '';
+    const rows = DIM_LABELS.map(([key,label])=>{
+      const v = dims[key];
+      let barHtml;
+      if (dist && dist[key]){
+        const d = dist[key];
+        barHtml = `<div class="dim-bar">
+          <span class="seg neg" style="width:${d.neg}%">${d.neg>=8?d.neg+'%':''}</span>
+          <span class="seg neu" style="width:${d.neu}%">${d.neu>=8?d.neu+'%':''}</span>
+          <span class="seg pos" style="width:${d.pos}%">${d.pos>=8?d.pos+'%':''}</span>
+        </div>`;
+      } else {
+        const cls = scoreClass(v);
+        barHtml = `<div class="dim-bar single ${cls}"><i style="width:${v}%"></i></div>`;
+      }
+      return `<div class="dim-row">
+        <div class="name">${label}</div>
+        ${barHtml}
+        <div class="score">${v}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('dimRows').innerHTML = legend + rows;
+  }
+
+  function fmtEnps(v){ return (v===null || v===undefined) ? '—' : (v>0?'+':'') + v; }
+
+  function renderSegSummary(filterLabel, favorabilidad, enps, participacionPct, respondieron, invitados){
+    document.getElementById('segSummary').innerHTML = `
+      <span class="active-filter">${filterLabel}</span>
+      <span class="stat">Favorabilidad <b>${favorabilidad}</b></span>
+      <span class="stat">eNPS <b>${fmtEnps(enps)}</b></span>
+      <span class="stat">Participaci&oacute;n <b>${participacionPct}%</b> <span style="color:var(--ink-faint)">(${respondieron}/${invitados})</span></span>
+    `;
+  }
+
+  // ---------- Ranking (sigue a la categoría seleccionada en "Ver por") ----------
+  function renderRanking(){
+    const head = document.getElementById('rankHead');
+    const body = document.getElementById('rankRows');
+    const titleEl = document.getElementById('rankTitle');
+
+    if (currentCat === 'general'){
+      titleEl.innerHTML = 'Ranking &middot; <strong>Dimensiones</strong>';
+      head.innerHTML = `<tr><th>Dimensi&oacute;n</th><th>Distribuci&oacute;n</th><th class="num">Favorabilidad</th></tr>`;
+      const dims = SEGMENTS.general.value.dims;
+      const dist = SEGMENTS.general.value.dist;
+      const rows = DIM_LABELS.map(([key,label])=>({key, label, v:dims[key]})).sort((a,b)=> b.v - a.v);
+      body.innerHTML = rows.map(r=>{
+        const cls = scoreClass(r.v);
+        const d = dist && dist[r.key];
+        const barHtml = d
+          ? `<div class="dim-bar table-bar">
+              <span class="seg neg" style="width:${d.neg}%">${d.neg>=8?d.neg+'%':''}</span>
+              <span class="seg neu" style="width:${d.neu}%">${d.neu>=8?d.neu+'%':''}</span>
+              <span class="seg pos" style="width:${d.pos}%">${d.pos>=8?d.pos+'%':''}</span>
+            </div>`
+          : `<div class="dim-bar single table-bar ${cls}"><i style="width:${r.v}%"></i></div>`;
+        return `<tr><td>${r.label}</td><td>${barHtml}</td><td class="num"><span class="pill-num ${cls}">${r.v}</span></td></tr>`;
+      }).join('');
+      return;
+    }
+
+    const seg = SEGMENTS[currentCat];
+    titleEl.innerHTML = 'Ranking &middot; <strong>' + seg.label + '</strong>';
+    head.innerHTML = `<tr><th>${seg.label}</th><th class="num">Invitados</th><th class="num">Respondieron</th><th>Participaci&oacute;n</th><th class="num">Favorabilidad</th></tr>`;
+    const rows = [...seg.values].sort((a,b)=> b.total - a.total);
+    body.innerHTML = rows.map(v=>{
+      const pct = Math.round((v.n/v.invited)*1000)/10;
+      const cls = scoreClass(v.total);
+      return `<tr>
+        <td>${v.name}</td>
+        <td class="num">${v.invited}</td>
+        <td class="num">${v.n}</td>
+        <td><span class="mini-bar"><i style="width:${pct}%; background:var(--accent);"></i></span><span>${pct.toFixed(1)}%</span></td>
+        <td class="num"><span class="pill-num ${cls}">${v.total}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function populateValueSelect(seg, filterText){
+    const sel = document.getElementById('valueSelect');
+    const f = (filterText || '').trim().toLowerCase();
+    const withIdx = seg.values.map((v,i)=>({ v, i }));
+    const filtered = withIdx.filter(({v}) => !f || v.name.toLowerCase().includes(f));
+    const list = filtered.length ? filtered : withIdx;
+
+    if (!list.some(({i}) => i === currentValue)) currentValue = list[0].i;
+
+    sel.innerHTML = list.map(({v,i}) => `<option value="${i}"${i===currentValue?' selected':''}>${v.name}</option>`).join('');
+  }
+
+  function renderSegment(){
+    const seg = SEGMENTS[currentCat];
+    const noteEl = document.getElementById('catNote');
+    const rowEl = document.getElementById('valueRow');
+
+    if (seg.isGeneral){
+      noteEl.hidden = true;
+      rowEl.hidden = true;
+      renderDimsFor(seg.value.name, seg.value.dims, seg.value.total, seg.value.dist);
+      renderRanking();
+      const invited = 562, responded = 444;
+      const pct = Math.round((responded/invited)*1000)/10;
+      renderSegSummary('General', seg.value.total, seg.value.enps, pct, responded, invited);
+      return;
+    }
+
+    noteEl.hidden = false;
+    noteEl.textContent = seg.note;
+    rowEl.hidden = false;
+
+    if (currentValue === null) currentValue = 0;
+    populateValueSelect(seg, document.getElementById('valueSearch').value);
+
+    const sel = seg.values[currentValue];
+    renderDimsFor(seg.label + ' · ' + sel.name, sel.dims, sel.total, sel.dist);
+    renderRanking();
+    const pct = Math.round((sel.n/sel.invited)*1000)/10;
+    renderSegSummary(seg.label + ' · ' + sel.name, sel.total, sel.enps, pct, sel.n, sel.invited);
+  }
+
+  document.getElementById('catToggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#catToggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = btn.dataset.cat;
+    currentValue = null;
+    document.getElementById('valueSearch').value = '';
+    renderSegment();
+  });
+
+  document.getElementById('valueSelect').addEventListener('change', (e)=>{
+    currentValue = +e.target.value;
+    renderSegment();
+  });
+
+  document.getElementById('valueSearch').addEventListener('input', (e)=>{
+    const seg = SEGMENTS[currentCat];
+    if (seg.isGeneral) return;
+    populateValueSelect(seg, e.target.value);
+    const sel = seg.values[currentValue];
+    renderDimsFor(seg.label + ' · ' + sel.name, sel.dims, sel.total, sel.dist);
+    const pct = Math.round((sel.n/sel.invited)*1000)/10;
+    renderSegSummary(seg.label + ' · ' + sel.name, sel.total, sel.enps, pct, sel.n, sel.invited);
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', ()=> window.print());
+
+  document.getElementById('resetLink').addEventListener('click', ()=>{
+    document.querySelectorAll('#catToggle button').forEach(b=>b.classList.remove('active'));
+    document.querySelector('#catToggle button[data-cat="general"]').classList.add('active');
+    currentCat = 'general';
+    currentValue = null;
+    document.getElementById('valueSearch').value = '';
+    renderSegment();
+  });
+
+  renderSegment();
+
+  // ---------- Detalle por pregunta ----------
+  function renderQuestions(filter){
+    const f = (filter||'').trim().toLowerCase();
+    const rows = QUESTIONS
+      .filter(q => !f || q.text.toLowerCase().includes(f) || q.dim.toLowerCase().includes(f))
+      .sort((a,b)=> a.pos - b.pos);
+    document.getElementById('qCount').textContent = rows.length + ' de ' + QUESTIONS.length + ' preguntas';
+    document.getElementById('qRows').innerHTML = rows.map(q=>{
+      const cls = scoreClass(q.pos);
+      return `<tr>
+        <td class="qdim-tag">${q.dim}</td>
+        <td>${q.text}</td>
+        <td class="num">
+          <div class="fav-cell ${cls}">
+            <span class="mini-bar ${cls}"><i style="width:${q.pos}%"></i></span>
+            <span class="num">${q.pos.toFixed(1)}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  renderQuestions('');
+  document.getElementById('qSearch').addEventListener('input', (e)=> renderQuestions(e.target.value));
+</script>
